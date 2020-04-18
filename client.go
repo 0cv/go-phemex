@@ -57,9 +57,8 @@ const (
 	TimeInForceTypeIOC TimeInForceType = "ImmediateOrCancel"
 	TimeInForceTypeFOK TimeInForceType = "FillOrKill"
 
-	TriggerTypeByMarkPrice  TriggerType = "ByMarkPrice"
-	TriggerTypeByIndexPrice TriggerType = "ByIndexPrice"
-	TriggerTypeByLastPrice  TriggerType = "ByLastPrice"
+	TriggerTypeByMarkPrice TriggerType = "ByMarkPrice"
+	TriggerTypeByLastPrice TriggerType = "ByLastPrice"
 
 	signatureKey   = "x-phemex-request-signature"
 	expiryKey      = "x-phemex-request-expiry"
@@ -265,6 +264,11 @@ func (c *Client) NewCreateReplaceOrderService() *CreateReplaceOrderService {
 // NewCancelOrderService init cancel order service
 func (c *Client) NewCancelOrderService() *CancelOrderService {
 	return &CancelOrderService{c: c}
+}
+
+// NewQueryOrderService init query order service
+func (c *Client) NewQueryOrderService() *QueryOrderService {
+	return &QueryOrderService{c: c}
 }
 
 // NewPositionsLeverageService init positions leverage service

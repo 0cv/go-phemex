@@ -207,7 +207,7 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		return nil, err
 	}
 	if resp.Code > 0 {
-		return nil, common.APIError{
+		return nil, &common.APIError{
 			Code:    resp.Code,
 			Message: resp.Msg,
 		}
@@ -429,7 +429,7 @@ func (s *CreateReplaceOrderService) Do(ctx context.Context, opts ...RequestOptio
 		return nil, err
 	}
 	if resp.Code > 0 {
-		return nil, common.APIError{
+		return nil, &common.APIError{
 			Code:    resp.Code,
 			Message: resp.Msg,
 		}
@@ -472,7 +472,7 @@ func (s *ListOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (
 		return nil, err
 	}
 	if resp.Code > 0 {
-		return nil, common.APIError{
+		return nil, &common.APIError{
 			Code:    resp.Code,
 			Message: resp.Msg,
 		}
@@ -528,7 +528,7 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		return nil, err
 	}
 	if resp.Code > 0 {
-		return nil, common.APIError{
+		return nil, &common.APIError{
 			Code:    resp.Code,
 			Message: resp.Msg,
 		}
@@ -536,45 +536,45 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 	return resp.Data.(*OrderResponse), nil
 }
 
-// PositionsLeverageService cancel an order
-type PositionsLeverageService struct {
-	c          *Client
-	symbol     string
-	leverage   *int64
-	leverageEr *int64
+// QueryOrderService cancel an order
+type QueryOrderService struct {
+	c         *Client
+	symbol    string
+	orderID   *string
+	clOrderID *string
 }
 
 // Symbol set symbol
-func (s *PositionsLeverageService) Symbol(symbol string) *PositionsLeverageService {
+func (s *QueryOrderService) Symbol(symbol string) *QueryOrderService {
 	s.symbol = symbol
 	return s
 }
 
-// Leverage set leverage
-func (s *PositionsLeverageService) Leverage(leverage int64) *PositionsLeverageService {
-	s.leverage = &leverage
+// OrderID set orderID
+func (s *QueryOrderService) OrderID(orderID string) *QueryOrderService {
+	s.orderID = &orderID
 	return s
 }
 
-// LeverageEr set leverageEr
-func (s *PositionsLeverageService) LeverageEr(leverageEr int64) *PositionsLeverageService {
-	s.leverageEr = &leverageEr
+// ClOrderID set clOrderID
+func (s *QueryOrderService) ClOrderID(clOrderID string) *QueryOrderService {
+	s.clOrderID = &clOrderID
 	return s
 }
 
 // Do send request
-func (s *PositionsLeverageService) Do(ctx context.Context, opts ...RequestOption) (res *BaseResponse, err error) {
+func (s *QueryOrderService) Do(ctx context.Context, opts ...RequestOption) (res []*OrderResponse, err error) {
 	r := &request{
-		method:   "PUT",
-		endpoint: "/positions/leverage",
+		method:   "GET",
+		endpoint: "/exchange/order",
 		secType:  secTypeSigned,
 	}
 	r.setParam("symbol", s.symbol)
-	if s.leverage != nil {
-		r.setParam("leverage", *s.leverage)
+	if s.orderID != nil {
+		r.setParam("orderID", *s.orderID)
 	}
-	if s.leverageEr != nil {
-		r.setParam("leverageEr", *s.leverageEr)
+	if s.clOrderID != nil {
+		r.setParam("clOrderID", *s.clOrderID)
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
@@ -582,74 +582,16 @@ func (s *PositionsLeverageService) Do(ctx context.Context, opts ...RequestOption
 	}
 
 	resp := new(BaseResponse)
+	resp.Data = new([]*OrderResponse)
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
 		return nil, err
 	}
 	if resp.Code > 0 {
-		return nil, common.APIError{
+		return nil, &common.APIError{
 			Code:    resp.Code,
 			Message: resp.Msg,
 		}
 	}
-	return resp, nil
-}
-
-// PositionsAssignService cancel an order
-type PositionsAssignService struct {
-	c            *Client
-	symbol       string
-	posBalance   *float64
-	posBalanceEv *int64
-}
-
-// Symbol set symbol
-func (s *PositionsAssignService) Symbol(symbol string) *PositionsAssignService {
-	s.symbol = symbol
-	return s
-}
-
-// PosBalance set posBalance
-func (s *PositionsAssignService) PosBalance(posBalance float64) *PositionsAssignService {
-	s.posBalance = &posBalance
-	return s
-}
-
-// PosBalanceEr set posBalanceEv
-func (s *PositionsAssignService) PosBalanceEr(posBalanceEv int64) *PositionsAssignService {
-	s.posBalanceEv = &posBalanceEv
-	return s
-}
-
-// Do send request
-func (s *PositionsAssignService) Do(ctx context.Context, opts ...RequestOption) (res *BaseResponse, err error) {
-	r := &request{
-		method:   "POST",
-		endpoint: "/positions/assign",
-		secType:  secTypeSigned,
-	}
-	r.setParam("symbol", s.symbol)
-	if s.posBalance != nil {
-		r.setParam("posBalance", *s.posBalance)
-	}
-	if s.posBalanceEv != nil {
-		r.setParam("posBalanceEv", *s.posBalanceEv)
-	}
-	data, err := s.c.callAPI(ctx, r, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	resp := new(BaseResponse)
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Code > 0 {
-		return nil, common.APIError{
-			Code:    resp.Code,
-			Message: resp.Msg,
-		}
-	}
-	return resp, nil
+	return *resp.Data.(*[]*OrderResponse), nil
 }

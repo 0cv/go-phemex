@@ -483,68 +483,83 @@ func (s *orderServiceTestSuite) assertDeleteOrderEquals(e, a *OrderResponse) {
 	r.Equal(e.OrdStatus, a.OrdStatus, "OrdStatus")
 }
 
-func (s *orderServiceTestSuite) TestPositionLeverageService() {
+func (s *orderServiceTestSuite) TestQueryService() {
 	data := []byte(`{
 		"code": 0,
-		"msg": "OK"
+		"msg": "",
+		"data": [{
+			"bizError": 0,
+			"orderID": "ab90a08c-b728-4b6b-97c4-36fa497335bf",
+			"clOrdID": "137e1928-5d25-fecd-dbd1-705ded659a4f",
+			"symbol": "BTCUSD",
+			"side": "Sell",
+			"actionTimeNs": 1580547265848034600,
+			"transactTimeNs": 0,
+			"orderType": "Limit",
+			"priceEp": 98970000,
+			"price": 9897,
+			"orderQty": 1,
+			"displayQty": 1,
+			"timeInForce": "GoodTillCancel",
+			"reduceOnly": false,
+			"stopPxEp": 0,
+			"closedPnlEv": 0,
+			"closedPnl": 0,
+			"closedSize": 0,
+			"cumQty": 0,
+			"cumValueEv": 0,
+			"cumValue": 0,
+			"leavesQty": 1,
+			"leavesValueEv": 10104,
+			"leavesValue": 0.00010104,
+			"stopPx": 0,
+			"stopDirection": "UNSPECIFIED",
+			"ordStatus": "Created"
+		}]
 	}`)
 
 	s.mockDo(data, nil)
 	defer s.assertDo()
 	symbol := "BTCUSD"
-	leverage := int64(10)
+	orderID := "1234"
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setParams(params{
-			"symbol":   symbol,
-			"leverage": leverage,
+			"symbol":  symbol,
+			"orderId": orderID,
 		})
 		s.assertRequestEqual(e, r)
 	})
 
-	res, err := s.client.NewPositionsLeverageService().Symbol(symbol).Leverage(leverage).Do(newContext())
+	res, err := s.client.NewQueryOrderService().Symbol(symbol).OrderID(orderID).Do(newContext())
 	s.r().NoError(err)
-	e := &BaseResponse{
-		Code: 0,
-		Msg:  "OK",
-	}
-	s.assertLeverageEquals(e, res)
-}
-
-func (s *orderServiceTestSuite) assertLeverageEquals(e, a *BaseResponse) {
-	r := s.r()
-	r.Equal(e.Code, a.Code, "Code")
-	r.Equal(e.Msg, a.Msg, "Msg")
-}
-
-func (s *orderServiceTestSuite) TestPositionAssignService() {
-	data := []byte(`{
-		"code": 0,
-		"msg": "OK"
-	}`)
-
-	s.mockDo(data, nil)
-	defer s.assertDo()
-	symbol := "BTCUSD"
-	posBalance := float64(10)
-	s.assertReq(func(r *request) {
-		e := newSignedRequest().setParams(params{
-			"symbol":     symbol,
-			"posBalance": posBalance,
-		})
-		s.assertRequestEqual(e, r)
-	})
-
-	res, err := s.client.NewPositionsAssignService().Symbol(symbol).PosBalance(posBalance).Do(newContext())
-	s.r().NoError(err)
-	e := &BaseResponse{
-		Code: 0,
-		Msg:  "OK",
-	}
-	s.assertPositionAssignEquals(e, res)
-}
-
-func (s *orderServiceTestSuite) assertPositionAssignEquals(e, a *BaseResponse) {
-	r := s.r()
-	r.Equal(e.Code, a.Code, "Code")
-	r.Equal(e.Msg, a.Msg, "Msg")
+	e := []*OrderResponse{{
+		BizError:       0,
+		OrderID:        "ab90a08c-b728-4b6b-97c4-36fa497335bf",
+		ClOrdID:        "137e1928-5d25-fecd-dbd1-705ded659a4f",
+		Symbol:         "BTCUSD",
+		Side:           "Sell",
+		ActionTimeNs:   1580547265848034600,
+		TransactTimeNs: 0,
+		OrderType:      "Limit",
+		PriceEp:        98970000,
+		Price:          9897,
+		OrderQty:       1,
+		DisplayQty:     1,
+		TimeInForce:    "GoodTillCancel",
+		ReduceOnly:     false,
+		StopPxEp:       0,
+		ClosedPnlEv:    0,
+		ClosedPnl:      0,
+		ClosedSize:     0,
+		CumQty:         0,
+		CumValueEv:     0,
+		CumValue:       0,
+		LeavesQty:      1,
+		LeavesValueEv:  10104,
+		LeavesValue:    0.00010104,
+		StopPx:         0,
+		StopDirection:  "UNSPECIFIED",
+		OrdStatus:      "Created",
+	}}
+	s.assertListOpenEquals(e, res)
 }
