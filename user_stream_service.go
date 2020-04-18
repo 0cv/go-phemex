@@ -75,11 +75,11 @@ func (s *WsAuthService) Do(ctx context.Context, opts ...RequestOption) (c *webso
 // StartWsAOPService create listen key for user stream service
 type StartWsAOPService struct {
 	c  *Client
-	id *int
+	id *int64
 }
 
 // SetID set id
-func (s *StartWsAOPService) SetID(id int) *StartWsAOPService {
+func (s *StartWsAOPService) SetID(id int64) *StartWsAOPService {
 	s.id = &id
 	return s
 }
@@ -96,7 +96,7 @@ func (s *StartWsAOPService) Do(c *websocket.Conn, handler WsHandler, errHandler 
 		defer close(stop)
 
 		if WebsocketKeepalive {
-			keepAlive(c, stop, errHandler)
+			keepAlive(c, *s.id, stop, errHandler)
 		}
 
 		err = c.WriteJSON(map[string]interface{}{
@@ -136,57 +136,59 @@ type WsAccount struct {
 
 // WsOrder ws order
 type WsOrder struct {
-	AccountID               int64   `json:"accountID"`
-	Action                  string  `json:"action"`
-	ActionBy                string  `json:"actionBy"`
-	ActionTimeNs            int64   `json:"actionTimeNs"`
-	AddedSeq                int64   `json:"addedSeq"`
-	BonusChangedAmountEv    int64   `json:"bonusChangedAmountEv"`
-	ClOrdID                 string  `json:"clOrdID"`
-	ClosedPnlEv             int64   `json:"closedPnlEv"`
-	ClosedSize              float64 `json:"closedSize"`
-	Code                    int64   `json:"code"`
-	CumQty                  float64 `json:"cumQty"`
-	CurAccBalanceEv         int64   `json:"curAccBalanceEv"`
-	CurAssignedPosBalanceEv int64   `json:"curAssignedPosBalanceEv"`
-	CurLeverageEr           int64   `json:"curLeverageEr"`
-	CurPosSide              string  `json:"curPosSide"`
-	CurPosSize              float64 `json:"curPosSize"`
-	CurPosTerm              int64   `json:"curPosTerm"`
-	CurPosValueEv           int64   `json:"curPosValueEv"`
-	CurRiskLimitEv          int64   `json:"curRiskLimitEv"`
-	Currency                string  `json:"currency"`
-	CxlRejReason            int64   `json:"cxlRejReason"`
-	DisplayQty              float64 `json:"displayQty"`
-	ExecFeeEv               int64   `json:"execFeeEv"`
-	ExecID                  string  `json:"execID"`
-	ExecInst                string  `json:"execInst"`
-	ExecPriceEp             int64   `json:"execPriceEp"`
-	ExecQty                 float64 `json:"execQty"`
-	ExecSeq                 float64 `json:"execSeq"`
-	ExecStatus              string  `json:"execStatus"`
-	ExecValueEv             int64   `json:"execValueEv"`
-	FeeRateEr               int64   `json:"feeRateEr"`
-	LeavesQty               float64 `json:"leavesQty"`
-	LeavesValueEv           int64   `json:"leavesValueEv"`
-	Message                 string  `json:"message"`
-	OrdStatus               string  `json:"ordStatus"`
-	OrdType                 string  `json:"ordType"`
-	OrderID                 string  `json:"orderID"`
-	OrderQty                float64 `json:"orderQty"`
-	PegOffsetValueEp        int64   `json:"pegOffsetValueEp"`
-	Platform                string  `json:"platform"`
-	PriceEp                 int64   `json:"priceEp"`
-	RelatedPosTerm          int64   `json:"relatedPosTerm"`
-	RelatedReqNum           int64   `json:"relatedReqNum"`
-	Side                    string  `json:"side"`
-	StopLossEp              int64   `json:"stopLossEp"`
-	StopPxEp                int64   `json:"stopPxEp"`
-	Symbol                  string  `json:"symbol"`
-	TakeProfitEp            int64   `json:"takeProfitEp"`
-	TimeInForce             string  `json:"timeInForce"`
-	TransactTimeNs          int64   `json:"transactTimeNs"`
-	UserID                  int64   `json:"userID"`
+	AccountID               int64       `json:"accountID"`
+	Action                  string      `json:"action"`
+	ActionBy                string      `json:"actionBy"`
+	ActionTimeNs            int64       `json:"actionTimeNs"`
+	AddedSeq                int64       `json:"addedSeq"`
+	BonusChangedAmountEv    int64       `json:"bonusChangedAmountEv"`
+	ClOrdID                 string      `json:"clOrdID"`
+	ClosedPnlEv             int64       `json:"closedPnlEv"`
+	ClosedSize              float64     `json:"closedSize"`
+	Code                    int64       `json:"code"`
+	CumQty                  float64     `json:"cumQty"`
+	CurAccBalanceEv         int64       `json:"curAccBalanceEv"`
+	CurAssignedPosBalanceEv int64       `json:"curAssignedPosBalanceEv"`
+	CurLeverageEr           int64       `json:"curLeverageEr"`
+	CurPosSide              string      `json:"curPosSide"`
+	CurPosSize              float64     `json:"curPosSize"`
+	CurPosTerm              int64       `json:"curPosTerm"`
+	CurPosValueEv           int64       `json:"curPosValueEv"`
+	CurRiskLimitEv          int64       `json:"curRiskLimitEv"`
+	Currency                string      `json:"currency"`
+	CxlRejReason            int64       `json:"cxlRejReason"`
+	DisplayQty              float64     `json:"displayQty"`
+	ExecFeeEv               int64       `json:"execFeeEv"`
+	ExecID                  string      `json:"execID"`
+	ExecInst                string      `json:"execInst"`
+	ExecPriceEp             int64       `json:"execPriceEp"`
+	ExecQty                 float64     `json:"execQty"`
+	ExecSeq                 float64     `json:"execSeq"`
+	ExecStatus              string      `json:"execStatus"`
+	ExecValueEv             int64       `json:"execValueEv"`
+	FeeRateEr               int64       `json:"feeRateEr"`
+	LeavesQty               float64     `json:"leavesQty"`
+	LeavesValueEv           int64       `json:"leavesValueEv"`
+	Message                 string      `json:"message"`
+	OrdStatus               string      `json:"ordStatus"`
+	OrdType                 string      `json:"ordType"`
+	OrderID                 string      `json:"orderID"`
+	OrderQty                float64     `json:"orderQty"`
+	PegOffsetValueEp        int64       `json:"pegOffsetValueEp"`
+	Platform                string      `json:"platform"`
+	PriceEp                 int64       `json:"priceEp"`
+	RelatedPosTerm          int64       `json:"relatedPosTerm"`
+	RelatedReqNum           int64       `json:"relatedReqNum"`
+	Side                    string      `json:"side"`
+	StopDirection           string      `json:"stopDirection"`
+	StopLossEp              int64       `json:"stopLossEp"`
+	StopPxEp                int64       `json:"stopPxEp"`
+	Symbol                  string      `json:"symbol"`
+	TakeProfitEp            int64       `json:"takeProfitEp"`
+	TimeInForce             string      `json:"timeInForce"`
+	TransactTimeNs          int64       `json:"transactTimeNs"`
+	Trigger                 TriggerType `json:"trigger"`
+	UserID                  int64       `json:"userID"`
 }
 
 // WsPosition ws position
@@ -250,13 +252,21 @@ type WsPositionInfo struct {
 	UserID    int64   `json:"userID"`
 }
 
+// WsError ws error
+type WsError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 // WsAOP ws AOP
 type WsAOP struct {
 	Accounts     []*WsAccount    `json:"accounts"`
 	Orders       []*WsOrder      `json:"orders"`
 	Positions    []*WsPosition   `json:"positions"`
 	PositionInfo *WsPositionInfo `json:"position_info"`
+	Error        *WsError        `json:"error"`
 	Sequence     int64           `json:"sequence"`
 	Timestamp    int64           `json:"timestamp"`
 	Type         string          `json:"type"`
+	ID           int             `json:"id"`
 }
