@@ -2,7 +2,9 @@ package phemex
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -111,8 +113,21 @@ func (s *StartWsAOPService) Do(c *websocket.Conn, handler WsHandler, errHandler 
 		}
 
 		for {
-			resp := new(WsAOP)
-			err := c.ReadJSON(resp)
+			_, msg, err := c.ReadMessage()
+			if err != nil {
+				errHandler(err)
+				return
+			}
+			var resp interface{}
+			switch {
+			case strings.HasPrefix(string(msg), "{\"error\""):
+				resp = new(WsError)
+			case strings.HasPrefix(string(msg), "{\"position_info\""):
+				resp = new(WsPositionInfo)
+			default:
+				resp = new(WsAOP)
+			}
+			err = json.Unmarshal(msg, &resp)
 
 			if err != nil {
 				errHandler(err)
@@ -244,29 +259,44 @@ type WsPosition struct {
 	ValueEv                int64   `json:"valueEv"`
 }
 
-// WsPositionInfo ws position info
-type WsPositionInfo struct {
+// Error ws error
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// Status status
+type Status struct {
+	Status string `json:"status"`
+}
+
+// WsAOP ws AOP
+type WsAOP struct {
+	Accounts  []*WsAccount  `json:"accounts"`
+	Orders    []*WsOrder    `json:"orders"`
+	Positions []*WsPosition `json:"positions"`
+	Sequence  int64         `json:"sequence"`
+	Timestamp int64         `json:"timestamp"`
+	Type      string        `json:"type"`
+}
+
+// WsError ws error
+type WsError struct {
+	Error  *Error  `json:"error"`
+	Result *Status `json:"result"`
+	ID     int     `json:"id"`
+}
+
+// PositionInfo position info
+type PositionInfo struct {
 	AccountID int64   `json:"accountID"`
 	Light     float64 `json:"light"`
 	Symbol    string  `json:"symbol"`
 	UserID    int64   `json:"userID"`
 }
 
-// WsError ws error
-type WsError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
-// WsAOP ws AOP
-type WsAOP struct {
-	Accounts     []*WsAccount    `json:"accounts"`
-	Orders       []*WsOrder      `json:"orders"`
-	Positions    []*WsPosition   `json:"positions"`
-	PositionInfo *WsPositionInfo `json:"position_info"`
-	Error        *WsError        `json:"error"`
-	Sequence     int64           `json:"sequence"`
-	Timestamp    int64           `json:"timestamp"`
-	Type         string          `json:"type"`
-	ID           int             `json:"id"`
+// WsPositionInfo ws position info
+type WsPositionInfo struct {
+	PositionInfo *PositionInfo `json:"position_info"`
+	Sequence     int64         `json:"sequence"`
 }

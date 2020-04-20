@@ -10,7 +10,7 @@ import (
 )
 
 // WsHandler handle raw websocket message
-type WsHandler func(message *WsAOP)
+type WsHandler func(message interface{})
 
 // ErrHandler handles errors
 type ErrHandler func(err error)
@@ -41,10 +41,12 @@ func keepAlive(c *websocket.Conn, id int64, stop chan struct{}, errHandler ErrHa
 					"params": []string{},
 				})
 				c.WriteControl(websocket.PingMessage, p, time.Time{})
-			case <-time.After(3*WebsocketTimeout - time.Since(lastResponse)):
-				// Anything between 10s and 15s will come here
-				errHandler(fmt.Errorf("last pong exceeded the timeout: %[1]v (%[2]v)", time.Since(lastResponse), id))
-				return
+
+				// as suggested https://github.com/phemex/phemex-api-docs/blob/master/Public-API-en.md#1-session-management
+				if time.Since(lastResponse) > 3*WebsocketTimeout {
+					errHandler(fmt.Errorf("last pong exceeded the timeout: %[1]v (%[2]v)", time.Since(lastResponse), id))
+					return
+				}
 			}
 		}
 	}()

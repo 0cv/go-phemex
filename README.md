@@ -113,11 +113,19 @@ You initiate PhemexClient the same way
 #### User Data
 
 ```golang
-wsHandler := func(message []byte) {
-    fmt.Println(string(message))
+wsHandler := func(message interface{}) {
+    switch message := message.(type) {
+    case *phemex.WsAOP:
+        // snapshots / increments
+    case *phemex.WsPositionInfo:
+        // when a position is active
+    case *phemex.WsError:
+        // on connection
+    }
 }
+
 errHandler := func(err error) {
-    fmt.Println(err)
+    // initiate reconnection with `once.Do...`
 }
 
 auth := PhemexClient.NewWsAuthService()
@@ -127,7 +135,8 @@ if test {
 }
 
 c, err := auth.Do(context.Background())
+// err handling
 
 err = PhemexClient.NewStartWsAOPService().SetID(1).Do(c, wsHandler, errHandler)
-//...
+// err handling
 ```
