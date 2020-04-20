@@ -7,7 +7,7 @@ A Golang SDK for [phemex](https://www.phemex.com) API.
 [![Go Report Card](https://goreportcard.com/badge/github.com/Krisa/go-phemex)](https://goreportcard.com/report/github.com/Krisa/go-phemex)
 [![codecov](https://codecov.io/gh/Krisa/go-phemex/branch/master/graph/badge.svg)](https://codecov.io/gh/Krisa/go-phemex)
 
-Most REST APIs listed in [phemex API document](https://github.com/phemex-exchange/phemex-official-api-docs) are implemented, as well as the AOP websocket APIs.
+Most REST APIs listed in [phemex API document](https://github.com/phemex/phemex-api-docs/blob/master/Public-API-en.md) are implemented, as well as the AOP websocket APIs.
 
 For best compatibility, please use Go >= 1.8.
 
