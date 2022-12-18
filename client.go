@@ -306,6 +306,11 @@ func (c *Client) NewWsAuthService() *WsAuthService {
 	return &WsAuthService{c: c}
 }
 
+// NewStartWsOrderBookService OrderBook service
+func (c *Client) NewStartWsOrderBookService() *StartWsOrderBookService {
+	return &StartWsOrderBookService{c: c}
+}
+
 // NewStartWsAOPService AOP service
 func (c *Client) NewStartWsAOPService() *StartWsAOPService {
 	return &StartWsAOPService{c: c}
