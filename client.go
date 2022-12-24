@@ -311,6 +311,11 @@ func (c *Client) NewStartWsOrderBookService() *StartWsOrderBookService {
 	return &StartWsOrderBookService{c: c}
 }
 
+// NewStartWsTradeService Trade service
+func (c *Client) NewStartWsTradeService() *StartWsTradeService {
+	return &StartWsTradeService{c: c}
+}
+
 // NewStartWsAOPService AOP service
 func (c *Client) NewStartWsAOPService() *StartWsAOPService {
 	return &StartWsAOPService{c: c}
