@@ -12,7 +12,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/Krisa/go-phemex/common"
@@ -228,27 +227,15 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	c.debug("response status code: %d", res.StatusCode)
 
 	if res.StatusCode >= 400 {
-		apiTempErr := new(apiTempError)
-		e := json.Unmarshal(data, apiTempErr)
+		apiErr := new(common.APIError)
+		e := json.Unmarshal(data, apiErr)
 		if e != nil {
 			c.debug("failed to unmarshal json: %s", e)
-			return nil, e
-		}
-		apiErr := new(common.APIError)
-		apiErr.Message = apiTempErr.Message
-		apiErr.Code, e = strconv.ParseInt(apiTempErr.Code, 10, 64)
-		if e != nil {
-			c.debug("failed to parse int: %s", e)
 			return nil, e
 		}
 		return nil, apiErr
 	}
 	return data, nil
-}
-
-type apiTempError struct {
-	Code    string `json:"code"`
-	Message string `json:"msg"`
 }
 
 // NewCreateOrderService init create order service
@@ -304,6 +291,16 @@ func (c *Client) NewExchangeMarginService() *ExchangeMarginService {
 // NewWsAuthService init starting auth ws service
 func (c *Client) NewWsAuthService() *WsAuthService {
 	return &WsAuthService{c: c}
+}
+
+// NewStartWsOrderBookService OrderBook service
+func (c *Client) NewStartWsOrderBookService() *StartWsOrderBookService {
+	return &StartWsOrderBookService{c: c}
+}
+
+// NewStartWsTradeService Trade service
+func (c *Client) NewStartWsTradeService() *StartWsTradeService {
+	return &StartWsTradeService{c: c}
 }
 
 // NewStartWsAOPService AOP service

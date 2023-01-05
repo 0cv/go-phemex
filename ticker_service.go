@@ -18,7 +18,7 @@ func (s *ListPriceChangeStatsService) Symbol(symbol string) *ListPriceChangeStat
 }
 
 // Do send request
-func (s *ListPriceChangeStatsService) Do(ctx context.Context, opts ...RequestOption) (res []*PriceChangeStats, err error) {
+func (s *ListPriceChangeStatsService) Do(ctx context.Context, opts ...RequestOption) (res *PriceChangeStats, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/v1/md/ticker/24hr/all",
@@ -31,14 +31,14 @@ func (s *ListPriceChangeStatsService) Do(ctx context.Context, opts ...RequestOpt
 		return res, err
 	}
 	resp := new(BaseTickerResponse)
-	resp.Result = new([]*PriceChangeStats)
+	resp.Result = new(PriceChangeStats)
 
 	err = json.Unmarshal(data, resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return *resp.Result.(*[]*PriceChangeStats), nil
+	return resp.Result.(*PriceChangeStats), nil
 }
 
 // BaseTickerResponse base ticker response
